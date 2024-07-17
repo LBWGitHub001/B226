@@ -77,3 +77,15 @@ end
 
 X=X+3704;
 
+%%画图
+for i=1:34
+    plot([0,3704],[X(i) X(i)],'Color',[0 0.5 0.5])
+    hold on
+end
+plot([0,3704],[7408 7408],'Color',[1 0 0])
+hold on
+%这里还可以表示一下覆盖范围
+%rectangle('Position',[,0,40,20],'edgecolor','k','facecolor','y','linewidth',2)
+xlabel('南-----------------------------北')
+ylabel('西-----------------------------东')
+text(3400,7700,'西海岸边界') 
