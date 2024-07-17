@@ -29,28 +29,50 @@ east=mile(2);
 W1=@(x) W11(x)*cos(alpha);
 W2=@(x) W22(x)*cos(alpha);
 %以下采用m作为运算的单位
-%搜索步长
-step=1;
-%搜索初始点
-for i=west:east
-    if W2(i)<i-west
-        break
-    end
-    X=i;
-end
 
+%搜索初始点 粗糙判定在10-30
+high=-3674;
+low=-3694;
+mid=(high+low)/2.0;
+while west+W2(mid)-mid>0.01 || west+W2(mid)-mid<0
+    mid=(high+low)/2.0;
+    if west+W2(mid)-mid>0
+        low=mid;
+    elseif west+W2(mid)-mid<0
+        high=mid;
+    end  
+end
+X=mid;
+%使用二分法进行求解，使覆盖率尽可能接近10%
+error=0.011;
+i=mid;
 while true
-    %if W2(i)>i-W1(X(end))+X(end)
-        temp=eta(i,i-X(end));
-        if temp>0.1 && temp <0.13
-            X=[X i]
-            flag=W1(i)+i
-            if flag>east
-                break
-            end
+    temp=eta(i,i-X(end));
+    if temp>0.1 && temp <0.12
+        high=i;low=i;
+        while temp>=0.1
+            temp=eta(high,high-X(end));
+            high=high+1;
         end
-    %end
+        %进入二分法
+        mid=(high+low)/2.0
+        while temp-0.1>error || temp<=0.1
+                mid=(high+low)/2.0
+                temp=eta(high,high-X(end));
+                if temp<0
+                    low=mid;
+                elseif temp>0
+                    high=mid;
+                end
+        end
+        X=[X mid];
+    end
+    
     i=i+1;
+    flag=W1(i)+i;
+    if flag>east
+       break
+    end
 end
 
 X=X+3704;
