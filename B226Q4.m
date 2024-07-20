@@ -1,6 +1,6 @@
-% clc;clear
-% submarine = readmatrix("附件.xlsx");
-% submarine = submarine(2:end,3:end);
+clc;clear
+submarine = readmatrix("附件.xlsx");
+submarine = submarine(2:end,3:end);
 % 画图展示划分情况
 
 x=0:0.02:4;
