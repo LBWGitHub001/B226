@@ -82,7 +82,7 @@ for i=1:34
     plot([0,3704],[X(i) X(i)],'Color',[0 0.5 0.5])
     hold on
 end
-plot([0,3704],[7408 7408],'Color',[1 0 0])
+plot([0,3704],[7408 7408],'Color',[1 0 0],'LineWidth',2)
 hold on
 %这里还可以表示一下覆盖范围
 %rectangle('Position',[,0,40,20],'edgecolor','k','facecolor','y','linewidth',2)
