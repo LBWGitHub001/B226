@@ -1,13 +1,34 @@
-clc
+clc;clear
+submarine = readmatrix("附件.xlsx");
+submarine = submarine(2:end,3:end);
+%按照海域深度进行划分
+split=zeros(251,201);
+for i=1:251
+    for j=1:201
+        split(i,j)=round(submarine(i,j)/20);
+    end
+end
+global S;
+S=zeros(201,251,10);
+for k=1:10
+    for i=1:201
+        for j=1:251
+            if split(j,i)==k
+                S(i,j,k)=1;
+            end
+        end
+    end
+end
+
 %初始值
 x1=1;
 x2=2;
 y=3.5;
 % 使用遗传算法进行最优值求解
 % 2^8=256 是有8bit进行编码
-calvar(1,2,3.5)
-r=enco(2.5);
-d=deco(r);
+% calvar(1,2,3.5)
+% r=enco(2.5);
+% d=deco(r);
 
 %生成初始群落 个体数50
 X1=enco(1);
@@ -24,7 +45,7 @@ for i=2:50
 end
 
 %评价标准
-eval=@(x1,x2,y) calvar(x1,x2,y);
+% eval=@(x1,x2,y) calvar(x1,x2,y);
 ex=0.85; %交换率
 va=0.1; %变异率
 iter=1000; %迭代次数
