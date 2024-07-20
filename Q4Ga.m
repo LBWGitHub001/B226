@@ -25,14 +25,14 @@ end
 
 %评价标准
 eval=@(x1,x2,y) calvar(x1,x2,y);
-ex=0.6; %交换率
+ex=0.85; %交换率
 va=0.1; %变异率
 iter=1000; %迭代次数
-best=[1 2 3.5 1546.56061362170]; %最优情况
+best=[1 2 3.5 5]; %最优情况
 %    x1 x2 y  var
 
 
-for it =1:1
+for it =1:20
     % 进行解码
     De=Deco(X1,X2,Y);
     %合法性检验
@@ -64,27 +64,113 @@ for it =1:1
     ev=1./VAR*10000;
     %选取排名前10的进行轮盘法抽取样本
     [sortedV, sortIndex] = sort(ev, 'descend');
-    newX1=X1(sortIndex(1:10));
-    newX2=X2(sortIndex(1:10));
-    newY=Y(sortIndex(1:10));
+    newX1=X1(sortIndex(1:10),:);
+    newX2=X2(sortIndex(1:10),:);
+    newY=Y(sortIndex(1:10),:);
     Ten=sortedV(1:10);
     percent=Ten./sum(Ten);
+    %选取best
+    if sortedV(1)>best(4)
+        index=sortIndex(1);%最大的那个ev对应的索引
+        best(1:3)=De(index,:)
+        best(4)=sortedV(1);
+    end
+
     %开始加和，求取10个区间
+    whlseed=zeros(1,10);
+    for i=1:10
+        whlseed(i)=sum(percent(1:i));
+    end
+    %随机轮选取新子代
+    for i=1:50
+        r=wheel(whlseed);
+        X1(i,:)=newX1(r);
+        X2(i,:)=newX2(r);
+        Y(i,:)=newY(r);
+    end
+
+
+    %交换和变异
+    %交换
+    A=1:50;
+    exchIndex=A(rand(50,1)<ex);
+    for i=exchIndex
+        [obj,val]=randomGen(i);
+        %对x1进行操作
+        temp=X1(i,val(1):val(2));
+        X1(i,val(1):val(2))=X1(obj,val(1):val(2));
+        X1(obj,val(1):val(2))=temp;
+        %对x2进行操作
+        temp=X2(i,val(1):val(2));
+        X2(i,val(1):val(2))=X2(obj,val(1):val(2));
+        X2(obj,val(1):val(2))=temp;
+        %对x1进行操作
+        temp=Y(i,val(1):val(2));
+        Y(i,val(1):val(2))=Y(obj,val(1):val(2));
+        Y(obj,val(1):val(2))=temp;
+    end
     
-
-
-
-
-
-
+    %变异
+    B=1:8;
+    vaIndex=A(rand(50,1)<va);
+    for i=vaIndex
+        index=B(rand(8,1)<va);
+        for j=index
+            X1(i,j)=(rand()<0.5);
+            X2(i,j)=(rand()<0.5);
+            Y(i,j)=(rand()<0.5);
+        end
+    end
     
 end
 
+% 画图展示划分情况
 
+x=0:0.02:4;
+y=0:0.02:5;
+[x,y]=meshgrid(x,y);
+contour(x,y,submarine,'levels',2)
+hold on
+plot([best(1) best(1)],[0 best(3)],'LineWidth',2,'Color','r')
+plot([0 4],[best(3) best(3)],'LineWidth',2,'Color','r')
+plot([best(2) best(2)],[best(3) 5],'LineWidth',2,'Color','r')
+
+text(0.5,4.3,"矩形 1","FontSize",30)
+text(2.6,4.3,"矩形 2","FontSize",30)
+text(0.1,2,"矩形","FontSize",30)
+text(0.4,1.5,"3","FontSize",30)
+text(2,2,"矩形 4","FontSize",30)
 
 
 %变量S 201*251*10
 %     东西 南北 分层
+function [obj,val]=randomGen(self)%选择一个染色体，选择一个区间
+    obj=ceil(rand()*50);
+    while obj==0 || obj==self
+        obj=ceil(rand()*50);
+    end
+
+    val=ceil(rand(1,2)*8);
+    while val(1)==0 || val(2)==0
+        obj=ceil(rand()*50);
+    end
+    val(1)=min(val(1),val(2));
+    val(2)=max(val(1),val(2));
+
+end
+
+
+
+%轮盘选择法
+function [result]=wheel(seed)
+    r=rand();
+    for i=1:10
+        if seed(i)>r
+            break
+        end
+    end
+    result=i;
+end
 
 % 按位右移>>
 function result=moveR(input)
