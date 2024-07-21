@@ -1,4 +1,4 @@
-clc;clear
+% clc;clear
 
 %%%%%%%%%%%%%%%%%%%%%算法调参区%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -6,11 +6,11 @@ clc;clear
 % eval=@(x1,x2,y) calvar(x1,x2,y);
 ex=0.9; %交换率
 va=0.5; %变异率
-iter=300; %迭代次数
+iter=1000; %迭代次数
 best=[1 2 3.5 5]; %最优情况
 %    x1 x2 y  var
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+global submarine
 submarine = readmatrix("附件.xlsx");
 submarine = submarine(2:end,3:end);
 %按照海域深度进行划分
@@ -259,66 +259,27 @@ end
 function [result]=calAarea(xmin,xmax,ymin,ymax)
 %通过传入的范围索引，求解出在这个区域上的目标值 
     %将四个坐标进行转换，求解出方差
-    Xmin=round(xmin/0.02+1);
-    Xmax=round(xmax/0.02+1);
-    Ymin=round(ymin/0.02+1);
-    Ymax=round(ymax/0.02+1);
-    global S;
+    global submarine;
+    Ymin=round(xmin/0.02+1);
+    Ymax=round(xmax/0.02+1);
+    Xmin=round(ymin/0.02+1);
+    Xmax=round(ymax/0.02+1);
+    block=submarine(Xmin:Xmax,:);
+    sum=0;
+    for i=Ymin:Ymax
+        xx=block(:,i);
+        sum=sum+var(xx);
+    end
+    sum=sum/(Ymax-Ymin);
+    block=submarine(:,Ymin:Ymax);
+    sum2=0;
+    for i=Xmin:Xmax
+        xx=block(i,:);
+        sum2=sum2+var(xx);
+    end
+    sum2=sum2/(Xmax-Xmin);
+    result=sum+sum2;
 
-    %横向切片，衡量直线的竖直程度
-    D=[];
-    for i=1:10%测试，加一层
-        middle=[];
-        % [DeBug]
-        % if Xmin<=0 || Xmax <=0 || Ymin <=0 || Ymax <=0
-        %     [xmin,xmax,ymin,ymax]
-        %     Xmin
-        %     Xmax
-        %     Ymin
-        %     Ymax
-        % end
-        layer=S(Xmin:Xmax,Ymin:Ymax,i);%提取一层
-        %计算平均值
-        for y=1:Ymax-Ymin%沿着y方向进行遍历
-            line=layer(:,y);
-            t=find(line==1);
-            b=max(t)+Xmin;
-            s=min(t)+Xmin;
-            m=(b+s)/2;
-            if size(m)~=0
-                middle=[middle m];
-            end
-        end
-        if ~isnan(var(middle))
-            D=[D var(middle)];
-        end
-    end
-    num1=sum(D);
-    
-    %纵向切片，衡量直线的水平程度
-    D=[];
-    for i=1:10%测试，加一层
-        middle=[];
-        layer=S(Xmin:Xmax,Ymin:Ymax,i);%提取一层
-        %计算平均值
-        for x=1:Xmax-Xmin%沿着y方向进行遍历
-            line=layer(x,:);
-            t=find(line==1);
-            b=max(t)+Ymin;
-            s=min(t)+Ymin;
-            m=(b+s)/2;
-            if size(m)~=0
-                middle=[middle m];
-            end
-        end
-        if ~isnan(var(middle))
-            D=[D var(middle)];
-        end
-    end
-    num2=sum(D);
-    
-    
-    result=min(num1,num2);
     
 end
 
