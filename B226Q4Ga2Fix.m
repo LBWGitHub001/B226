@@ -6,7 +6,7 @@ clc;clear
 % eval=@(x1,x2,y) calvar(x1,x2,y);
 ex=0.9; %交换率
 va=0.3; %变异率
-iter=1000; %迭代次数
+iter=300; %迭代次数
 best=[1 1.5 2 3.5 5]; %最优情况
 %    x1 x2 y  var
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -189,11 +189,14 @@ plot([0 mile(4)],[mile(best(end,4)) mile(best(end,4))],'LineWidth',2,'Color','r'
 plot([mile(best(end,3)) mile(best(end,3))],[mile(best(end,4)) mile(5)],'LineWidth',2,'Color','r')
 % %画测线
 rect=best(end,:);
-point2line(0,best(end,1),0,best(end,4));
-point2line(best(end,1),best(end,2),0,best(end,4));
-point2line(best(end,2),4,0,best(end,4));
-point2line(0,best(end,3),best(end,4),5);
-point2line(best(end,3),4,best(end,4),5);
+Total=0;
+Total=Total+point2line(0,best(end,1),0,best(end,4));
+Total=Total+point2line(best(end,1),best(end,2),0,best(end,4));
+Total=Total+point2line(best(end,2),4,0,best(end,4));
+Total=Total+point2line(0,best(end,3),best(end,4),5);
+Total=Total+point2line(best(end,3),4,best(end,4),5);
+disp("测线的总长度为：");
+Total
 
 %%
 

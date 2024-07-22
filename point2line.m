@@ -6,7 +6,7 @@
 % Xmax=xmax/0.02+1;
 % Ymin=ymin/0.02+1;
 % Ymax=ymax/0.02+1;
-function []=point2line(xmin,xmax,ymin,ymax)
+function [totalLen]=point2line(xmin,xmax,ymin,ymax)
     %%根据范围中的点进行平面拟合，并且进行划线
     % 提取 x、y、z 坐标
     Xmin=xmin/0.02+1;
@@ -149,7 +149,8 @@ function []=point2line(xmin,xmax,ymin,ymax)
         hold on
         end
     end
-
+    [s,~]=size(X);
+    totalLen=s*(mile(xmax)-mile(xmin));
 end
 
 
