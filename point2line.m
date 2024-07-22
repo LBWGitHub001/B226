@@ -27,7 +27,9 @@ function []=point2line(xmin,xmax,ymin,ymax)
             z(index)=block(i,j);
         end
     end
-    
+    if size(block)==[0 0]
+        return
+    end
     [r,~]=FitPlane(x,y,z);
     c=r.p00;
     a=r.p10

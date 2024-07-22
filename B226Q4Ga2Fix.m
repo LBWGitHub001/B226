@@ -5,36 +5,19 @@ clc;clear
 %评价标准
 % eval=@(x1,x2,y) calvar(x1,x2,y);
 ex=0.9; %交换率
-va=0.5; %变异率
+va=0.3; %变异率
 iter=1000; %迭代次数
-best=[1 2 3.5 5]; %最优情况
+best=[1 1.5 2 3.5 5]; %最优情况
 %    x1 x2 y  var
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 global submarine
 submarine = readmatrix("附件.xlsx");
 submarine = submarine(2:end,3:end);
-%按照海域深度进行划分
-split=zeros(251,201);
-for i=1:251
-    for j=1:201
-        split(i,j)=round(submarine(i,j)/20);
-    end
-end
-global S;
-S=zeros(201,251,10);
-for k=1:10
-    for i=1:201
-        for j=1:251
-            if split(j,i)==k
-                S(i,j,k)=1;
-            end
-        end
-    end
-end
 
 %初始值
 x1=1;
 x2=2;
+x3=1.5;
 y=3.5;
 % 使用遗传算法进行最优值求解
 % 2^8=256 是有8bit进行编码
@@ -51,6 +34,10 @@ X2=enco(2);
 for i=2:50
     X2=[X2;rand(1,8)<0.5];
 end
+X3=enco(1.5);
+for i=2:50
+    X3=[X3;rand(1,8)<0.5];
+end
 Y=enco(3.5);
 for i=2:50
     Y=[Y;rand(1,8)<0.5];
@@ -60,27 +47,34 @@ end
 
 for it =1:iter
     % 进行解码
-    De=Deco(X1,X2,Y);
+    De=Deco(X1,X2,X3,Y);
     %合法性检验
-    % X1
+    
     for i=1:50
+        % X1
         if De(i,1)>4%如果横向大于4海里
             De(i,1)=De(i,1)/2;
             X1(i,:)=moveR(X1(i,:));
         end
-    end
-    % X2
-    for i=1:50
+        % X2
         if De(i,2)>4%如果横向大于4海里
             De(i,2)=De(i,2)/2;
             X2(i,:)=moveR(X2(i,:));
         end
-    end
-    % Y
-    for i=1:50
-        if De(i,3)>5%如果横向大于4海里
+        % X3
+        if De(i,3)>4%如果横向大于4海里
             De(i,3)=De(i,3)/2;
+            X3(i,:)=moveR(X3(i,:));
+        end
+        % Y
+        if De(i,4)>5%如果纵向大于5海里
+            De(i,4)=De(i,4)/2;
             Y(i,:)=moveR(Y(i,:));
+        end
+        %要求X1<X2
+        if De(i,1) > De(i,2)
+            [De(i,1),De(i,2)]=swap(De(i,1),De(i,2));
+            [X1(i,:),X2(i,:)]=swap(X1(i,:),X2(i,:));
         end
     end
 
@@ -92,6 +86,7 @@ for it =1:iter
     [sortedV, sortIndex] = sort(ev, 'descend');
     newX1=X1(sortIndex(1:10),:);
     newX2=X2(sortIndex(1:10),:);
+    newX3=X3(sortIndex(1:10),:);
     newY=Y(sortIndex(1:10),:);
     Ten=sortedV(1:10);
     percent=Ten./sum(Ten);
@@ -112,6 +107,7 @@ for it =1:iter
         r=wheel(whlseed);
         X1(i,:)=newX1(r);
         X2(i,:)=newX2(r);
+        X3(i,:)=newX3(r);
         Y(i,:)=newY(r);
     end
 
@@ -130,7 +126,11 @@ for it =1:iter
         temp=X2(i,val(1):val(2));
         X2(i,val(1):val(2))=X2(obj,val(1):val(2));
         X2(obj,val(1):val(2))=temp;
-        %对x1进行操作
+        %对x3进行操作
+        temp=X3(i,val(1):val(2));
+        X3(i,val(1):val(2))=X3(obj,val(1):val(2));
+        X3(obj,val(1):val(2))=temp;
+        %对Y进行操作
         temp=Y(i,val(1):val(2));
         Y(i,val(1):val(2))=Y(obj,val(1):val(2));
         Y(obj,val(1):val(2))=temp;
@@ -144,6 +144,7 @@ for it =1:iter
         for j=index
             X1(i,j)=(rand()<0.5);
             X2(i,j)=(rand()<0.5);
+            X3(i,j)=(rand()<0.5);
             Y(i,j)=(rand()<0.5);
         end
     end
@@ -153,21 +154,22 @@ for it =1:iter
 end
 
 % 画图展示划分情况
-
+%%
 x=0:0.02:4;
 y=0:0.02:5;
 [x,y]=meshgrid(x,y);
 contour(x,y,submarine,'levels',2)
 hold on
-plot([best(end,1) best(end,1)],[0 best(end,3)],'LineWidth',2,'Color','r')
-plot([0 4],[best(end,3) best(end,3)],'LineWidth',2,'Color','r')
-plot([best(end,2) best(end,2)],[best(end,3) 5],'LineWidth',2,'Color','r')
+plot([best(end,1) best(end,1)],[0 best(end,4)],'LineWidth',2,'Color','r')
+plot([best(end,2) best(end,2)],[0 best(end,4)],'LineWidth',2,'Color','r')
+plot([0 4],[best(end,4) best(end,4)],'LineWidth',2,'Color','r')
+plot([best(end,3) best(end,3)],[best(end,4) 5],'LineWidth',2,'Color','r')
 
-text(0.5,4.3,"矩形 1","FontSize",30)
-text(2.6,4.3,"矩形 2","FontSize",30)
-text(0.1,2,"矩形","FontSize",30)
-text(0.4,1.5,"3","FontSize",30)
-text(2,2,"矩形 4","FontSize",30)
+% text(0.5,4.3,"矩形 1","FontSize",30)
+% text(2.6,4.3,"矩形 2","FontSize",30)
+% text(0.1,2,"矩形","FontSize",30)
+% text(0.4,1.5,"3","FontSize",30)
+% text(2,2,"矩形 4","FontSize",30)
 
 %%展示海域情况 
 submarine=submarine';
@@ -181,15 +183,19 @@ plot([mile(0),mile(4)],[mile(5),mile(5)],'LineWidth',1,'Color','b')
 plot([mile(4),mile(4)],[0,mile(5)],'LineWidth',1,'Color','b')
 plot([mile(0),mile(4)],[0,0],'LineWidth',1,'Color','b')
 %%分割
-plot([mile(best(end,1)) mile(best(end,1))],[0 mile(best(end,3))],'LineWidth',2,'Color','r')
-plot([0 mile(4)],[mile(best(end,3)) mile(best(end,3))],'LineWidth',2,'Color','r')
-plot([mile(best(end,2)) mile(best(end,2))],[mile(best(end,3)) mile(5)],'LineWidth',2,'Color','r')
+plot([mile(best(end,1)) mile(best(end,1))],[0 mile(best(end,4))],'LineWidth',2,'Color','r')
+plot([mile(best(end,2)) mile(best(end,2))],[0 mile(best(end,4))],'LineWidth',2,'Color','r')
+plot([0 mile(4)],[mile(best(end,4)) mile(best(end,4))],'LineWidth',2,'Color','r')
+plot([mile(best(end,3)) mile(best(end,3))],[mile(best(end,4)) mile(5)],'LineWidth',2,'Color','r')
 % %画测线
 rect=best(end,:);
-point2line(0,best(end,1),0,best(end,3));
-point2line(best(end,1),4,0,best(end,3));
-point2line(0,best(end,2),best(end,3),5);
-point2line(best(end,2),4,best(end,3),5);
+point2line(0,best(end,1),0,best(end,4));
+point2line(best(end,1),best(end,2),0,best(end,4));
+point2line(best(end,2),4,0,best(end,4));
+point2line(0,best(end,3),best(end,4),5);
+point2line(best(end,3),4,best(end,4),5);
+
+%%
 
 % point2line(0,1,0,3.5);
 % point2line(1,4,0,3.5);
@@ -198,6 +204,11 @@ point2line(best(end,2),4,best(end,3),5);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%函数区%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %变量S 201*251*10
 %     东西 南北 分层
+function [x,y]=swap(x1,y1)
+    x=y1;
+    y=x1;
+end
+
 function [obj,val]=randomGen(self)%选择一个染色体，选择一个区间
     obj=ceil(rand()*50);
     while obj==0 || obj==self
@@ -212,7 +223,6 @@ function [obj,val]=randomGen(self)%选择一个染色体，选择一个区间
     val(2)=max(val(1),val(2));
 
 end
-
 
 
 %轮盘选择法
@@ -236,25 +246,28 @@ end
 function VAR=CalVAR(De)
     VAR=inf*ones(50,1);
     for i=1:50
-        VAR(i)=calvar(De(i,1),De(i,2),De(i,3));
+        VAR(i)=calvar(De(i,1),De(i,2),De(i,3),De(i,4));
     end
     
 end
 
 % 对一个种群进行解码
-function D=Deco(X1,X2,Y)
+function D=Deco(X1,X2,X3,Y)
     x1Set=zeros(50,1);
     x2Set=zeros(50,1);
+    x3Set=zeros(50,1);
     ySet=zeros(50,1);
     for i=1:50
         x1=X1(i,:);
         x2=X2(i,:);
+        x3=X3(i,:);
         y=Y(i,:);
         x1Set(i)=deco(x1);
         x2Set(i)=deco(x2);
+        x3Set(i)=deco(x3);
         ySet(i)=deco(y);
     end
-    D=[x1Set,x2Set,ySet];
+    D=[x1Set,x2Set,x3Set,ySet];
 end
 
 %编码十进制 海里->二进制
@@ -311,12 +324,14 @@ end
 
 
 
-function [output]=calvar(x1,x2,y)
+function [output]=calvar(x1,x2,x3,y)
 %x1 x2 y 单位是海里，需要转换为坐标的索引   
     output=0;
-    output=output+calAarea(0,x2,y,5);
-    output=output+calAarea(x2,4,y,5);
     output=output+calAarea(0,x1,0,y);
-    output=output+calAarea(x1,4,0,y);
+    output=output+calAarea(x1,x2,0,y);
+    output=output+calAarea(x2,4,0,y);
+    output=output+calAarea(0,x3,y,5);
+    output=output+calAarea(x3,4,y,5);    
 end
+
 

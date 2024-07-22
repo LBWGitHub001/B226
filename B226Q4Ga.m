@@ -10,7 +10,7 @@ iter=300; %迭代次数
 best=[1 2 3.5 5]; %最优情况
 %    x1 x2 y  var
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+global submarine;
 submarine = readmatrix("附件.xlsx");
 submarine = submarine(2:end,3:end);
 %按照海域深度进行划分
