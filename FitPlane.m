@@ -23,16 +23,16 @@ ft = fittype( 'poly11' );
 
 % 对数据进行模型拟合。
 [fitresult, gof] = fit( [xData, yData], zData, ft );
-
-% 绘制数据拟合图。
-figure( 'Name', '海底平面拟合图 1' );
-h = plot( fitresult, [xData, yData], zData );
-legend( h, '拟合平面 1', 'z vs. x, y', 'Location', 'NorthEast', 'Interpreter', 'none' );
-% 为坐标区加标签
-xlabel( 'x', 'Interpreter', 'none' );
-ylabel( 'y', 'Interpreter', 'none' );
-zlabel( 'z', 'Interpreter', 'none' );
-grid on
-view( -15.0, 18.6 );
+% 
+% % 绘制数据拟合图。
+% figure( 'Name', '海底平面拟合图 1' );
+% h = plot( fitresult, [xData, yData], zData );
+% legend( h, '拟合平面 1', 'z vs. x, y', 'Location', 'NorthEast', 'Interpreter', 'none' );
+% % 为坐标区加标签
+% xlabel( 'x', 'Interpreter', 'none' );
+% ylabel( 'y', 'Interpreter', 'none' );
+% zlabel( 'z', 'Interpreter', 'none' );
+% grid on
+% view( -15.0, 18.6 );
 
 

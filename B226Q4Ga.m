@@ -169,6 +169,53 @@ text(0.1,2,"矩形","FontSize",30)
 text(0.4,1.5,"3","FontSize",30)
 text(2,2,"矩形 4","FontSize",30)
 
+%%展示海域情况 
+rect=best(end,:);
+point2line(0,best(1),0,best(3));
+point2line(best(1),4,0,best(3));
+point2line(0,best(2),best(3),5);
+point2line(best(2),4,best(3),5);
+
+% 画图展示划分情况
+
+x=0:0.02:4;
+y=0:0.02:5;
+[x,y]=meshgrid(x,y);
+contour(x,y,submarine,'levels',2)
+hold on
+plot([best(end,1) best(end,1)],[0 best(end,3)],'LineWidth',2,'Color','r')
+plot([0 4],[best(end,3) best(end,3)],'LineWidth',2,'Color','r')
+plot([best(end,2) best(end,2)],[best(end,3) 5],'LineWidth',2,'Color','r')
+
+text(0.5,4.3,"矩形 1","FontSize",30)
+text(2.6,4.3,"矩形 2","FontSize",30)
+text(0.1,2,"矩形","FontSize",30)
+text(0.4,1.5,"3","FontSize",30)
+text(2,2,"矩形 4","FontSize",30)
+
+%%展示海域情况 
+submarine=submarine';
+% best=[1 2 3.5 11];
+mile=@(x) 1852*x;
+figure('Name','海底测线绘制')
+%%边框
+plot([0,0],[0,mile(4)],'LineWidth',1,'Color','b')
+hold on;
+plot([mile(0),mile(4)],[mile(5),mile(5)],'LineWidth',1,'Color','b')
+plot([mile(4),mile(4)],[0,mile(5)],'LineWidth',1,'Color','b')
+plot([mile(0),mile(4)],[0,0],'LineWidth',1,'Color','b')
+%%分割
+plot([mile(best(end,1)) mile(best(end,1))],[0 mile(best(end,3))],'LineWidth',2,'Color','r')
+plot([0 mile(4)],[mile(best(end,3)) mile(best(end,3))],'LineWidth',2,'Color','r')
+plot([mile(best(end,2)) mile(best(end,2))],[mile(best(end,3)) mile(5)],'LineWidth',2,'Color','r')
+% %画测线
+rect=best(end,:);
+point2line(0,best(end,1),0,best(end,3));
+point2line(best(end,1),4,0,best(end,3));
+point2line(0,best(end,2),best(end,3),5);
+point2line(best(end,2),4,best(end,3),5);
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%函数区%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %变量S 201*251*10
 %     东西 南北 分层
